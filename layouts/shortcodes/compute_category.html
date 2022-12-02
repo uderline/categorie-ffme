@@ -1,0 +1,128 @@
+<div id="compute_category_container">
+    <div id="category_container" style="opacity: 0">
+        <h4>Ta catégorie est</h4>
+        <h2 class="category_text">Sénior</h2>
+    </div>
+
+    <h5>Entre ta date de naissance</h5>
+    <p class="big-font"><input id="day"> / <input id="month"> / <input id="year"></p>
+
+    <div id="lower" style="display: none">
+        <p>Tu semble encore un peu trop jeune pour intégrer le parcours fédéral, ta catégorie n'existe pas encore.</p>
+    </div>
+    <div id="explanation_text" style="opacity: 0">
+        <p>Sur la saison sportive <span class="reference_year"></span> (<span id="start_year"></span> - <span
+                class="reference_year"></span>), tu auras donc <span id="compute_age"></span> ans ce qui te catégorise en
+            <span class="category_text"></span>.</p>
+
+        <p>Pour t'en souvenir, calcul l'âge que tu auras le 31 décembre <span class="reference_year"></span> puis
+            rapproche-toi au plus bas d'une des catégories existante.</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.1.1/build/global/luxon.min.js"></script>
+<script>
+  var DateTime = luxon.DateTime;
+
+  const categories = {
+    u10: [8, 9],
+    u12: [10, 11],
+    u14: [12, 13],
+    u16: [14, 15],
+    u18: [16, 17],
+    u20: [18, 19],
+    senior: [20, 39],
+    veteran1: [40, 49],
+    veteran2: [50, 150],
+  };
+
+  const translations = {
+    lower: null,
+    u10: 'U10',
+    u12: 'U12',
+    u14: 'U14',
+    u16: 'U16',
+    u18: 'U18',
+    u20: 'U20',
+    senior: 'Senior',
+    veteran1: 'Vétéran 1',
+    veteran2: 'Vétéran 2',
+  };
+
+  let referenceYear = DateTime.now();
+  if (DateTime.now().month > 8) {
+    referenceYear = referenceYear.plus({years: 1});
+  }
+  referenceYear = referenceYear.set({month: 12, day: 31});
+
+  let ageReference = null;
+
+  function compute(date) {
+    if (!date) {
+      return;
+    }
+
+    const ageSeason = referenceYear.diff(date, ["years"]).toObject();
+    ageReference = Math.floor(ageSeason.years);
+
+    if (ageReference < 8) {
+      return 'lower';
+    }
+
+    let category = null
+    Object.entries(categories).forEach((value) => {
+      if (ageReference >= value[1][0] && ageReference <= value[1][1]) {
+        category = value[0];
+      }
+    });
+
+    return category;
+  }
+
+  function getDate() {
+    const day = document.querySelector('#day').value;
+    const month = document.querySelector('#month').value;
+    const year = document.querySelector('#year').value;
+
+    if (day && month && year) {
+      const birth = DateTime.fromObject({day, month, year});
+
+      if (!birth.invalid && birth < DateTime.now()) {
+        return birth;
+      }
+    }
+
+    return null;
+  }
+
+  function display(key) {
+    document.querySelector('#category_container').style.opacity = 0;
+    document.querySelector('#explanation_text').style.opacity = 0;
+    document.querySelector('#lower').style.display = 'none';
+
+    if (!key) {
+      return;
+    }
+
+    if (key === 'lower') {
+      document.querySelector('#lower').style.display = 'block';
+      return;
+    }
+
+    document.querySelector('#category_container').style.opacity = 1;
+    document.querySelector('#explanation_text').style.opacity = 1;
+    document.querySelectorAll('.category_text').forEach((node) => node.innerText = translations[key]);
+    document.querySelector('#compute_age').innerText = ageReference;
+  }
+
+  document.querySelectorAll('#day, #month, #year').forEach((selector) => selector.addEventListener('keyup', () => display(compute(getDate()))));
+
+  document.querySelectorAll('.reference_year').forEach((node) => node.innerText = referenceYear.year);
+  document.querySelector('#start_year').innerText = referenceYear.year - 1;
+
+  document.querySelectorAll('#day, #month').forEach((selector) => selector.addEventListener('keyup', () => {
+    if (selector.value.length === 2) {
+      selector.nextElementSibling.focus();
+    }
+  }));
+</script>
