@@ -1,0 +1,18 @@
+baseURL = 'https://categorie-ffme.fr/'
+languageCode = 'fr-fr'
+title = 'Calcule ta catégorie fédérale'
+theme = "introduction"
+DefaultContentLanguage = 'fr'
+
+[params]
+    themeStyle = "light"
+    showMenu = false
+    fadeIn = false
+    customCSS = ["css/compute_category.css"]
+
+[languages]
+    [languages.fr]
+        languageName = "Français"
+        languageCode = "fr-fr"
+        [languages.fr.params]
+            footerText = " "
