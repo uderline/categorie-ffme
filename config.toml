@@ -3,6 +3,7 @@ languageCode = 'fr-fr'
 title = 'Calcule ta catégorie fédérale'
 theme = "introduction"
 DefaultContentLanguage = 'fr'
+disableKinds = ['taxonomy', 'term']
 
 [params]
     themeStyle = "light"
